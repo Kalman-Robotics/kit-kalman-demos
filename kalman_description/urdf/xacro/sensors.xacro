@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/properties.xacro"/>
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/inertial.xacro"/>
+
+    <!-- Lidar -->
+    <xacro:macro name="lidar_sensor">
+        <link name="laser_link">
+            <!-- No visual geometry - lidar is part of chassis mesh -->
+            <inertial>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <mass value="${lidar_mass}"/>
+                <inertia ixx="1e-6" ixy="0.0" ixz="0.0"
+                         iyy="1e-6" iyz="0.0" 
+                         izz="1e-6"/>
+            </inertial>
+        </link>
+
+        <joint name="base_lidar_joint" type="fixed">
+            <origin xyz="${lidar_x_offset} ${lidar_y_offset} ${lidar_z_offset}" rpy="-${pi} 0.0 -${pi/2}"/>
+            <parent link="chassis_link"/>
+            <child link="laser_link"/>
+        </joint>
+
+    </xacro:macro> 
+
+
+    <xacro:macro name="imu_sensor">
+        <link name="imu_link">
+            <!-- IMU has no visual geometry - it's inside the chassis -->
+            <inertial>
+                <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+                <mass value="0.001"/>
+                <inertia ixx="1e-9" ixy="0.0" ixz="0.0"
+                         iyy="1e-9" iyz="0.0" 
+                         izz="1e-9"/>
+            </inertial>
+        </link>
+
+        <joint name="base_imu_joint" type="fixed">
+            <origin xyz="${imu_x_offset} ${imu_y_offset} ${imu_z_offset}" rpy="0.0 0.0 0.0"/>
+            <parent link="chassis_link"/>
+            <child link="imu_link"/>
+        </joint>
+
+    </xacro:macro> 
+
+
+</robot>

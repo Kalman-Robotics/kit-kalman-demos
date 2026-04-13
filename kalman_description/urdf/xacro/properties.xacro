@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <!-- Propiedades del chasis -->
+    <xacro:property name="chassis_x" value="0.14"/>
+    <xacro:property name="chassis_y" value="0.110"/>
+    <xacro:property name="chassis_z" value="0.065"/>
+    <xacro:property name="chassis_mass" value="1.0"/>
+    
+    <!-- Propiedades de ruedas -->
+    <xacro:property name="wheel_radius" value="0.017"/>
+    <xacro:property name="wheel_width" value="0.00645"/>
+    <xacro:property name="wheel_mass" value="0.5"/>
+    <xacro:property name="wheel_separation" value="0.086"/>  <!-- Separación entre ruedas -->
+    <xacro:property name="wheel_z_offset" value="-0.040650"/>   <!-- Posición vertical //-0.08 m posicion bajo el chasis -->
+    <xacro:property name="wheel_y_offset" value="-0.002060"/>   <!-- Posición vertical //-0.08 m posicion bajo el chasis -->
+
+    <!-- Propiedades rueda loca -->
+    <xacro:property name="caster_radius" value="0.0075"/>
+    <xacro:property name="caster_mass" value="0.1"/>
+    <xacro:property name="caster_x_offset" value="-0.057750"/>     
+    <xacro:property name="caster_y_offset" value="0.0"/>     
+    <xacro:property name="caster_z_offset" value="-0.0502"/>         
+    
+    <!-- Propiedades del lidar -->
+    <xacro:property name="lidar_altura" value="0.05" />
+    <xacro:property name="lidar_largo" value="0.005" />
+    <xacro:property name="lidar_ancho" value="0.005" />
+    <xacro:property name="lidar_mass" value="0.3" />
+    <xacro:property name="lidar_x_offset" value="-0.018391"/>  
+    <xacro:property name="lidar_z_offset" value="0.0325"/>   
+    <xacro:property name="lidar_y_offset" value="0.0"/>  
+
+    <!-- Propiedades de la antena -->
+    <xacro:property name="antena_ancho" value="0.1075" />
+    <xacro:property name="antena_radius" value="0.005" />
+    <xacro:property name="antena_mass" value="0.3" />
+    <xacro:property name="antena_x_offset" value="-0.0555"/>  
+    <xacro:property name="antena_y_offset" value="-0.031980"/>   
+    <xacro:property name="antena_z_offset" value="0.0706"/>  
+
+    <!-- Propiedades del IMU -->
+    <xacro:property name="imu_x_offset" value="0.0"/>  
+    <xacro:property name="imu_y_offset" value="0.0"/>   
+    <xacro:property name="imu_z_offset" value="0.0"/>  
+
+</robot>

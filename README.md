@@ -35,17 +35,39 @@ ros2 run kalman_demos cuadrado
 
 ## Demos disponibles
 
+### Movimiento y trayectorias
+
 | Comando | Descripción |
 |---|---|
-| `ros2 run kalman_demos cuadrado` | Traza un cuadrado usando odometría |
+| `ros2 run kalman_demos cuadrado` | Traza un cuadrado de lado configurable usando odometría |
 | `ros2 run kalman_demos espiral` | Traza una espiral hacia adentro |
-| `ros2 run kalman_demos evitar_obstaculos` | Avanza y evita obstáculos con LiDAR |
-| `ros2 run kalman_demos explorador` | Patrullaje autónomo del espacio |
-| `ros2 run kalman_demos seguidor_paredes` | Sigue la pared izquierda a distancia constante |
-| `ros2 run kalman_demos control_p` | Controlador proporcional de orientación |
-| `ros2 run kalman_demos antivuelco` | Detiene el robot si detecta inclinación |
-| `ros2 run kalman_demos telemetria_live` | Dashboard de telemetría en terminal |
-| `ros2 run kalman_demos radar` | Visualización LiDAR estilo radar en terminal |
+
+### Reactivo a sensores (LiDAR)
+
+| Comando | Descripción |
+|---|---|
+| `ros2 run kalman_demos evitar_obstaculos` | Avanza, detecta obstáculo al frente y gira hacia el lado con más espacio libre |
+| `ros2 run kalman_demos explorador` | Patrullaje autónomo: siempre en movimiento, se orienta hacia el espacio más abierto |
+| `ros2 run kalman_demos seguidor_paredes` | Se mantiene a distancia constante de la pared izquierda |
+
+### Control
+
+| Comando | Descripción |
+|---|---|
+| `ros2 run kalman_demos control_p` | Controlador proporcional: gira hasta alcanzar un ángulo objetivo |
+
+### IMU
+
+| Comando | Descripción |
+|---|---|
+| `ros2 run kalman_demos antivuelco` | Detecta inclinación > umbral (levantamiento o empuje) y detiene el robot |
+
+### Visualización / Interactivo
+
+| Comando | Descripción |
+|---|---|
+| `ros2 run kalman_demos telemetria_live` | Dashboard en terminal: posición, velocidad, batería, WiFi e IMU en tiempo real |
+| `ros2 run kalman_demos radar` | Vista del LiDAR estilo radar actualizándose en terminal a ~2 Hz |
 
 ### Parámetros opcionales
 

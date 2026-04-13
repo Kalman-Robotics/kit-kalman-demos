@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/properties.xacro"/>
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/inertial.xacro"/>
+    
+    <xacro:macro name="caster_wheel" params="index *origin">
+        <link name="caster_wheel_${index}">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                   <mesh filename="file://$(find kalman_description)/meshes/caster_wheel.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <material name="black">
+                    <color rgba="0.0 0.0 0.0 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <!-- <geometry>
+                    <mesh filename="file://$(find kalman_description)/meshes/caster_wheel.stl" scale="0.001 0.001 0.001"/>
+                </geometry> -->
+                <geometry>
+                    <sphere radius="${caster_radius}"/>
+                </geometry>                
+            </collision>
+            <xacro:inertial_sphere 
+                mass="${caster_mass}" 
+                radius="${caster_radius}">
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:inertial_sphere>
+        </link>
+
+        <joint name="caster_joint_${index}" type="fixed">
+            <parent link="chassis_link"/>
+            <child link="caster_wheel_${index}"/>
+            <xacro:insert_block name="origin"/>
+        </joint>
+    </xacro:macro>
+</robot>

@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/properties.xacro"/>
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/inertial.xacro"/>
+    
+    <xacro:macro name="wheel" params="prefix reflect">
+        <link name="${prefix}_wheel">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <!--geometry>
+                    <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+                </geometry-->
+                <geometry>
+                    <mesh filename="file://$(find kalman_description)/meshes/rueda.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <material name="black">
+                    <color rgba="0.0 0.0 0.0 1.0"/>
+                </material>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+                </geometry>
+            </collision>
+            <xacro:inertial_cylinder 
+                mass="${wheel_mass}" 
+                radius="${wheel_radius}" 
+                length="${wheel_width}">
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:inertial_cylinder>
+        </link>
+        
+        <joint name="wheel_${prefix}_joint" type="continuous">
+            <parent link="chassis_link"/>
+            <child link="${prefix}_wheel"/>
+            <origin xyz="0.0 ${wheel_separation/2*reflect} ${wheel_z_offset}" rpy="${-pi/2} 0 0"/>
+            <!--origin xyz="0.0 0.0 0.0" rpy="0 0 0"/-->
+            <axis xyz="0 0 1"/>
+        </joint>
+    </xacro:macro>
+</robot>

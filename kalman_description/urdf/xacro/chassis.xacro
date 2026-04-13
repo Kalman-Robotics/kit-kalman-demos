@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/properties.xacro"/>
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/inertial.xacro"/>
+
+    
+    <material name="steel">
+        <color rgba="0.70 0.70 0.70 1.0"/>
+    </material>
+
+    <xacro:macro name="chassis">
+        <!-- Base footprint (punto de referencia) -->
+        <link name="base_footprint"/>
+        
+        <!-- Link del chasis cilíndrico -->
+        <link name="chassis_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="file://$(find kalman_description)/meshes/carcasa.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <material name="steel"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 -0.0155" rpy="0 0 0"/>
+                <geometry>
+                    <box size="${chassis_x} ${chassis_y} ${chassis_z}"/>
+                </geometry>
+            </collision>
+            <xacro:inertial_box
+                mass="${chassis_mass}" 
+                x="${chassis_x}" 
+                y="${chassis_y}"
+                z="${chassis_z}">
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:inertial_box>
+        </link>
+        
+        <!-- Joint entre base_footprint y chasis -->
+        <joint name="base_chassis_joint" type="fixed">
+            <parent link="base_footprint"/>
+            <child link="chassis_link"/>
+            <origin xyz="0 0 0.04304" rpy="0 0 0"/> 
+        </joint>
+
+        <link name="antena_link">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <mesh filename="file://$(find kalman_description)/meshes/antena.stl" scale="0.001 0.001 0.001"/>
+                </geometry>
+                <material name="steel"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry>
+                    <cylinder radius="${antena_radius}" length="${antena_ancho}"/>
+                </geometry>
+            </collision>
+            <xacro:inertial_cylinder 
+                mass="${antena_mass}" 
+                radius="${antena_radius}" 
+                length="${antena_ancho}">
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:inertial_cylinder>
+        </link>
+        <joint name="chassis_antena_joint" type="fixed">
+            <parent link="chassis_link"/>
+            <child link="antena_link"/>
+            <origin xyz="${antena_x_offset} ${antena_y_offset} ${antena_z_offset}" rpy="0 0 0"/> 
+        </joint>
+
+
+    </xacro:macro>  
+</robot>

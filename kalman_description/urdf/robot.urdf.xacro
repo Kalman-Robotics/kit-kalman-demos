@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="uvrobot">
+
+    <!-- Incluir archivos XACRO -->
+    <!--xacro:include filename="$(find kalman_description)/urdf/xacro/properties.xacro"/-->
+    <!--xacro:include filename="$(find kalman_description)/urdf/xacro/inertial.xacro"/-->
+
+    <xacro:arg name="use_sim" default='true'  />
+
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/chassis.xacro"/>
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/wheel.xacro"/>
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/caster_wheel.xacro"/>
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/gazebo.xacro"/>
+    <xacro:include filename="$(find kalman_description)/urdf/xacro/sensors.xacro"/>
+
+    <!-- Construir robot -->
+    <xacro:chassis/>
+    <xacro:wheel prefix="left" reflect="1"/>
+    <xacro:wheel prefix="right" reflect="-1"/>
+
+    <xacro:caster_wheel index="1">
+        <origin xyz="${caster_x_offset} ${caster_y_offset} ${caster_z_offset}" rpy="0 0 0"/>
+    </xacro:caster_wheel>
+    <xacro:caster_wheel index="2">
+        <origin xyz="0.05 ${-caster_y_offset} ${caster_z_offset}" rpy="0 0 0"/>
+    </xacro:caster_wheel>    
+
+    <xacro:lidar_sensor/>
+    <xacro:imu_sensor/>
+
+    <xacro:if value="$(arg use_sim)">
+        <xacro:gazebo_plugin_drive/>
+        <xacro:friction_gazebo/>
+        <xacro:gazebo_sensors/>
+        <xacro:gazebo_materials/>
+    </xacro:if>
+
+</robot>
