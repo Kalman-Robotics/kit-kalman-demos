@@ -17,17 +17,23 @@ cd ~/ros2_ws/src
 git clone https://github.com/Kalman-Robotics/kit-kalman-demos.git
 ```
 
-### 2. Compilar el paquete
+### 2. Instalar dependencias del sistema
 
 ```bash
 cd ~/ros2_ws
-colcon build --packages-select kalman_demos
+rosdep install --from-paths src --ignore-src -r -y
+```
+
+### 3. Compilar
+
+```bash
+colcon build --packages-select kalman_demos kalman_bringup kalman_description
 source install/setup.bash
 ```
 
 > Agrega `source ~/ros2_ws/install/setup.bash` a tu `~/.bashrc` para no tener que ejecutarlo cada vez.
 
-### 3. Ejecutar un demo
+### 4. Ejecutar un demo
 
 ```bash
 ros2 run kalman_demos cuadrado
@@ -79,3 +85,51 @@ ros2 run kalman_demos control_p       --ros-args -p angulo_objetivo:=90.0
 ros2 run kalman_demos antivuelco      --ros-args -p umbral:=20.0
 ros2 run kalman_demos radar           --ros-args -p escala:=0.05 -p radio:=2.0
 ```
+
+---
+
+## Mapeo y Navegación
+
+> El robot ya está corriendo en el laboratorio remoto con todos sus tópicos expuestos. Los siguientes comandos se ejecutan desde tu laptop.
+
+### Mapeo con Cartographer
+
+**1. Lanzar Cartographer** (abre RViz con la vista de mapa en construcción):
+
+```bash
+ros2 launch kalman_bringup cartographer.launch.py use_sim_time:=false
+```
+
+**2. Mover el robot** para que explore el entorno (usa teleop o los demos de movimiento).
+
+**3. Guardar el mapa** cuando esté completo:
+
+```bash
+ros2 run nav2_map_server map_saver_cli -f ~/ros2_ws/src/kit-kalman-demos/kalman_bringup/map/mapa_kalman
+```
+
+Genera `mapa_kalman.pgm` y `mapa_kalman.yaml` en la carpeta `map/` del paquete.
+
+**4. Recompilar** para que el mapa quede disponible en la instalación:
+
+```bash
+cd ~/ros2_ws
+colcon build --packages-select kalman_bringup
+source install/setup.bash
+```
+
+---
+
+### Navegación autónoma con Nav2
+
+Requiere tener un mapa guardado (ver sección anterior).
+
+**1. Lanzar navegación** (abre RViz con el mapa y las herramientas de Nav2):
+
+```bash
+ros2 launch kalman_bringup navigation.launch.py use_sim_time:=false robot_model:=kalman_description slam:=False
+```
+
+**2. Establecer la posición inicial** del robot en RViz usando la herramienta **2D Pose Estimate**.
+
+**3. Asignar un objetivo** usando la herramienta **2D Nav Goal** en RViz. El robot planificará la ruta y se desplazará de forma autónoma evitando obstáculos.

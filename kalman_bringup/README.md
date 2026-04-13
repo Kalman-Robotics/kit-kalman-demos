@@ -3,16 +3,13 @@
 - [kalman\_bringup package](#kalman_bringup-package)
   - [Consideraciones previas](#consideraciones-previas)
   - [Archivos Launch](#archivos-launch)
-    - [`kalman_bringup.launch.py`](#kalman_bringuplaunchpy)
     - [`inspect_urdf.launch.py`](#inspect_urdflaunchpy)
     - [`cartographer.launch.py`](#cartographerlaunchpy)
     - [`navigation.launch.py`](#navigationlaunchpy)
     - [`occupancy_grid.launch.py`](#occupancy_gridlaunchpy)
     - [`monitor_robot.launch.py`](#monitor_robotlaunchpy)
-    - [`explore.launch.py`](#explorelaunchpy)
   - [Uso](#uso)
     - [Publicar el urdf del robot y visualizarlo en RViz](#publicar-el-urdf-del-robot-y-visualizarlo-en-rviz)
-    - [Lanzamiento inicial del robot](#lanzamiento-inicial-del-robot)
     - [Mapeo](#mapeo)
     - [Navegación utilizando un mapa existente](#navegación-utilizando-un-mapa-existente)
     - [Monitoreo por RViz](#monitoreo-por-rviz)
@@ -31,21 +28,6 @@
 Si el patrón de parpadeo indica un error, conecte el PC a la placa ESP32 del robot mediante un cable USB, abra un Monitor Serie.
 
 ## Archivos Launch
-
-### `kalman_bringup.launch.py`
-Lanzamiento principal del robot con telemetría, micro-ROS (opcional), robot_state_publisher y visualización en RViz (opcional).
-
-**Argumentos:**
-- `use_sim_time`: Usar reloj de simulación (Gazebo) si es verdadero (default: `false`)
-  - Valores aceptados: `true`, `false`
-- `use_rviz`: Lanzar RViz2 si es verdadero (default: `true`)
-  - Valores aceptados: `true`, `false`
-- `use_uros`: Usar comunicación micro-ROS si es verdadero (default: `true`)
-  - Valores aceptados: `true`, `false`
-- `lidar_model`: Modelo del LiDAR (default: `LDROBOT-LD19`)
-  - Valores aceptados: `YDLIDAR-X4`, `XIAOMI-LDS02RR`, `YDLIDAR-X2-X2L`, `3IROBOTIX-DELTA-2G`, `YDLIDAR-X3-PRO`, `YDLIDAR-X3`, `NEATO-XV11`, `SLAMTEC-RPLIDAR-A1`, `3IROBOTIX-DELTA-2A`, `3IROBOTIX-DELTA-2B`, `LDROBOT-LD14P`, `LDROBOT-LD19`, `CAMSENSE-X1`, `YDLIDAR-SCL`
-- `robot_ip`: Dirección IP del robot para comunicación micro-ROS (default: `192.168.18.16`)
-- `microros_port`: Puerto UDP para el agente micro-ROS (default: `8888`)
 
 ### `inspect_urdf.launch.py`
 Publica el URDF del robot y lo visualiza en RViz. Opcionalmente, puede iniciar nodos para las articulaciones.
@@ -92,13 +74,6 @@ Lanza RViz2 para monitorear el robot.
 - `robot_model`: Nombre del paquete de descripción del robot (default: vacío, usa configuración)
 - `use_sim_time`: Usar reloj de simulación (Gazebo) si es verdadero (default: `false`)
 
-### `explore.launch.py`
-Lanza el nodo de exploración autónoma (explore_lite).
-
-**Argumentos:**
-- `use_sim_time`: Usar reloj de simulación/Gazebo (default: `true`)
-- `namespace`: Espacio de nombres para el nodo de exploración (default: vacío)
-
 ## Uso 
 
 ### Publicar el urdf del robot y visualizarlo en RViz
@@ -109,28 +84,6 @@ Suscribe a tópicos:
 - `/joint_states` : Suscribe los estados de las articulaciones del robot.
 
 Publica los tópicos:
-- `/robot_description` : Publica el modelo URDF del robot.
-- `/tf` : Publica las transformaciones del robot.
-- `/tf_static` : Publica las transformaciones estáticas del robot.
-
-### Lanzamiento inicial del robot
-```
-ros2 launch kalman_bringup kalman_bringup.launch.py lidar_model:=LDROBOT-LD19 use_sim_time:=false use_rviz:=true use_uros:=false robot_ip:=192.168.18.16
-```
-Suscribe a tópicos:
-- `/telemetry` : Suscribe la telemetría del robot.
-
-- `/joint_states` : Suscribe los estados de las articulaciones del robot.
-
-Publica los tópicos:
-- `/battery_state` : Publica el estado de la batería del robot.
-- `/odom` : Publica la odometría del robot.
-- `/joint_states` : Publica los estados de las articulaciones del robot.
-- `/scan` : Publica los datos del escáner láser del robot.
-- `/wifi_state` : Publica el estado de la conexión Wi-Fi del robot.
-- `/tf`: Publica la transformación de odometría del robot.
-<!-- - `/control_status` : Publica el estado de control del robot. -->
-
 - `/robot_description` : Publica el modelo URDF del robot.
 - `/tf` : Publica las transformaciones del robot.
 - `/tf_static` : Publica las transformaciones estáticas del robot.
