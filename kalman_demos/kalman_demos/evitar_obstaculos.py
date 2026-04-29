@@ -4,12 +4,10 @@ Avanza en línea recta. Cuando detecta un obstáculo al frente a menos de
 DIST_STOP metros, gira hacia el lado con más espacio libre hasta despejarse
 y retoma el avance.
 
-360 lecturas desde la DERECHA del robot:
-  frente:     índices 75-105
-  frente-der: índices 30-75
-  frente-izq: índices 105-150
-  derecha:    índices 0-30 y 330-360
-  izquierda:  índices 150-210
+360 lecturas desde la DERECHA del robot (720 puntos, sentido horario):
+  frente:    índices 510-570  (270° horario = 3*N/4)
+  derecha:   índices 0-60 y 660-720
+  izquierda: índices 300-420
 
 Uso:
     ros2 run kalman_demos evitar_obstaculos
@@ -46,9 +44,9 @@ class EvitarObstaculos(Node):
             vals = [r for r in msg.ranges[a:b] if r > 0.01]
             return min(vals, default=DIST_MAX)
 
-        frente    = sector_min(75,  105)
-        derecha   = min(sector_min(0, 30), sector_min(330, 360))
-        izquierda = sector_min(150, 210)
+        frente    = sector_min(510, 570)
+        derecha   = min(sector_min(0, 60), sector_min(660, 720))
+        izquierda = sector_min(300, 420)
 
         self.get_logger().info(
             f'frente={frente:.2f}  der={derecha:.2f}  izq={izquierda:.2f}')

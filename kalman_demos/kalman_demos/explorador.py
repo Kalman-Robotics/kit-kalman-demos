@@ -10,13 +10,11 @@ No hay estados discretos — la velocidad angular se actualiza cada ciclo
 de forma fluida, lo que produce trayectorias más naturales que un
 alternado avanzar/girar.
 
-Mapa de índices del LiDAR (360 rayos, 0 = derecha, sentido antihorario):
-  derecha:       0  /  360
-  frente-der:   30 –  89
-  frente:       90
-  frente-izq:   91 – 150
-  izquierda:   180
-  atrás:       270
+Mapa de índices del LiDAR (720 puntos, 0 = derecha, sentido horario):
+  derecha:     0 / 720
+  atrás:       180
+  izquierda:   360
+  frente:      540  (3*N/4)
 
 Uso:
     ros2 run kalman_demos explorador
@@ -37,14 +35,16 @@ VEL_ANG_MAX  = math.pi / 2   # rad/s — saturación de angular_z
 GAIN_DIR     = 0.5     # ganancia proporcional sobre la dirección más libre
 VARIACION    = 0.5     # rad/s — paso de corrección lateral por ciclo
 
-# Zonas de análisis (índices sobre 360 rayos)
-FRONT_MIN    = 30      # inicio semicírculo frontal
-FRONT_MAX    = 150     # fin   semicírculo frontal
-IDX_FRENTE   = 90      # índice del rayo frontal central
-LEFT_MIN     = 100     # inicio zona lateral izquierda
-LEFT_MAX     = 160     # fin   zona lateral izquierda
-RIGHT_MIN    = 20      # inicio zona lateral derecha
-RIGHT_MAX    = 80      # fin   zona lateral derecha
+# Zonas de análisis (índices sobre 720 rayos, sentido horario, frente=540)
+FRONT_MIN    = 450     # inicio semicírculo frontal
+FRONT_MAX    = 630     # fin   semicírculo frontal
+IDX_FRENTE   = 540     # índice del rayo frontal central
+LEFT_MIN     = 300     # inicio zona lateral izquierda
+LEFT_MAX     = 420     # fin   zona lateral izquierda
+RIGHT_MIN_A  = 660     # zona lateral derecha (segmento alto)
+RIGHT_MAX_A  = 720
+RIGHT_MIN_B  = 0       # zona lateral derecha (segmento bajo, wrap)
+RIGHT_MAX_B  = 60
 
 MAX_RANGE    = 3.5     # m — distancia máxima válida (ignora inf)
 
@@ -102,8 +102,9 @@ class Explorador(Node):
                 max_dist = r
                 max_idx  = i
 
-        # Ángulo relativo al frente: positivo = izquierda, negativo = derecha
-        direction = (max_idx - IDX_FRENTE) * math.pi / 180.0
+        # CW: max_idx > IDX_FRENTE → derecha → angular_z negativo
+        # 720 puntos → 0.5°/índice → factor π/360
+        direction = (IDX_FRENTE - max_idx) * math.pi / 360.0
         self._angular_z = direction * GAIN_DIR
 
         self.get_logger().debug(
@@ -116,7 +117,8 @@ class Explorador(Node):
         ranges = self._scan.ranges
 
         espacio_izq = self._sector_min(ranges, LEFT_MIN,  LEFT_MAX)
-        espacio_der = self._sector_min(ranges, RIGHT_MIN, RIGHT_MAX)
+        espacio_der = min(self._sector_min(ranges, RIGHT_MIN_A, RIGHT_MAX_A),
+                          self._sector_min(ranges, RIGHT_MIN_B, RIGHT_MAX_B))
 
         if espacio_izq < self._burbuja:
             self._angular_z -= VARIACION   # girar a la derecha

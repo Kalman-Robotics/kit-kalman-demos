@@ -2,11 +2,11 @@
 
 Sigue la pared izquierda manteniéndose a distancia_objetivo.
 
-360 lecturas que inician desde la DERECHA del robot:
-  derecha:    índices 0-10 y 350-359
-  frente:     índices 80-100
-  izquierda:  índices 170-190
-  atrás:      índices 260-280
+720 lecturas desde la DERECHA del robot (sentido horario):
+  derecha:    índices 0-60 y 660-720
+  atrás:      índices 150-210
+  izquierda:  índices 300-420
+  frente:     índices 510-570  (3*N/4 = 540)
 
 Uso:
     ros2 run kalman_demos seguidor_paredes
@@ -23,6 +23,10 @@ GANANCIA    = 1.0    # ganancia proporcional
 DIST_OBJ    = 0.35   # m — distancia deseada a la pared
 DIST_MAX    = 10.0   # m — valor de saturación para lecturas inf
 
+def _sector_min(ranges, a, b):
+    vals = [r for r in ranges[a:b] if 0.05 < r < DIST_MAX]
+    return min(vals) if vals else DIST_MAX
+
 
 class SeguidorParedes(Node):
     def __init__(self):
@@ -36,8 +40,8 @@ class SeguidorParedes(Node):
             f'Seguidor de paredes iniciado — dist_objetivo={DIST_OBJ} m')
 
     def _scan_cb(self, msg):
-        frontal    = min(min(msg.ranges[80:100]),   DIST_MAX)
-        izquierda  = min(min(msg.ranges[170:190]),  DIST_MAX)
+        frontal    = _sector_min(msg.ranges, 510, 570)
+        izquierda  = _sector_min(msg.ranges, 300, 420)
 
         self.get_logger().info(
             f'frontal={frontal:.2f} m  izquierda={izquierda:.2f} m')
