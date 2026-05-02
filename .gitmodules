@@ -1,0 +1,3 @@
+[submodule "kalman_interfaces"]
+	path = kalman_interfaces
+	url = https://github.com/Kalman-Robotics/kalman_interfaces.git

@@ -65,6 +65,8 @@ class ControlP(Node):
             self._listo = True
             self.get_logger().info(
                 f'¡Objetivo alcanzado! error final={math.degrees(error):.2f}°')
+            self.pub.publish(cmd)
+            raise SystemExit
 
         self.pub.publish(cmd)
 
@@ -85,7 +87,10 @@ class ControlP(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = ControlP()
-    rclpy.spin(node)
+    try:
+        rclpy.spin(node)
+    except SystemExit:
+        pass
     node.destroy_node()
     rclpy.shutdown()
 

@@ -107,7 +107,9 @@ class Cuadrado(Node):
                     self.get_logger().info('¡Cuadrado completado!')
 
         elif self._estado == Estado.LISTO:
-            pass  # cmd ya es Twist vacío → robot detenido
+            self.pub.publish(cmd)   # publica Twist vacío para detener el robot
+            self.timer.cancel()
+            raise SystemExit
 
         self.pub.publish(cmd)
 
@@ -132,7 +134,10 @@ class Cuadrado(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = Cuadrado()
-    rclpy.spin(node)
+    try:
+        rclpy.spin(node)
+    except SystemExit:
+        pass
     node.destroy_node()
     rclpy.shutdown()
 

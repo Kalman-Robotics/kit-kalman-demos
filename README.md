@@ -2,36 +2,54 @@
 
 Nodos ROS 2 de demostración para el Kit-Kalman. Diseñados para ejecutarse directamente desde tu laptop conectada al robot del laboratorio remoto.
 
-## Prerrequisitos
+Todos los códigos están en:
 
-- ROS 2 Humble instalado en tu laptop
-- Conectado al laboratorio remoto (Husarnet activo, acceso al robot)
+```
+src/kit-kalman-demos/kalman_demos/kalman_demos/
+```
+
+Son archivos Python simples — ábrelos, léelos y modifícalos libremente. Cada uno es independiente y está pensado para que lo experimentes.
+
+---
+
+## Prerequisitos
+
+- ROS 2 Humble instalado en tu laptop (esto se hace automáticamente la primera vez que ejecutas el comando de conexión al robot)
+- Conectado al laboratorio remoto
+
+---
 
 ## Inicio rápido
 
 ### 1. Crear el workspace y clonar
 
 ```bash
-mkdir -p ~/ros2_ws/src
-cd ~/ros2_ws/src
-git clone https://github.com/Kalman-Robotics/kit-kalman-demos.git
+mkdir -p ~/nexus_ws/src
+cd ~/nexus_ws/src
+git clone --recursive https://github.com/Kalman-Robotics/kit-kalman-demos.git
 ```
+
+> **Importante:** el clone debe hacerse dentro de `~/nexus_ws/src/`, no en `~/nexus_ws/`. Si ves errores de paquetes duplicados es porque el repo quedó en el lugar incorrecto.
+
+El flag `--recursive` descarga también `kalman_interfaces`, que contiene los mensajes y servicios personalizados que usan los demos.
 
 ### 2. Instalar dependencias del sistema
 
 ```bash
-cd ~/ros2_ws
+cd ~/nexus_ws
+sudo rosdep init
+rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 ```
 
 ### 3. Compilar
 
 ```bash
-colcon build --packages-select kalman_demos kalman_bringup kalman_description
+cd ~/nexus_ws
+colcon build --packages-select kalman_interfaces kalman_demos kalman_bringup kalman_description
 source install/setup.bash
+echo "source ~/nexus_ws/install/setup.bash" >> ~/.bashrc
 ```
-
-> Agrega `source ~/ros2_ws/install/setup.bash` a tu `~/.bashrc` para no tener que ejecutarlo cada vez.
 
 ### 4. Ejecutar un demo
 
@@ -39,97 +57,179 @@ source install/setup.bash
 ros2 run kalman_demos cuadrado
 ```
 
+---
+
 ## Demos disponibles
 
-### Movimiento y trayectorias
+### Sin LiDAR
 
-| Comando | Descripción |
-|---|---|
-| `ros2 run kalman_demos cuadrado` | Traza un cuadrado de lado configurable usando odometría |
-| `ros2 run kalman_demos espiral` | Traza una espiral hacia adentro |
-
-### Reactivo a sensores (LiDAR)
-
-| Comando | Descripción |
-|---|---|
-| `ros2 run kalman_demos evitar_obstaculos` | Avanza, detecta obstáculo al frente y gira hacia el lado con más espacio libre |
-| `ros2 run kalman_demos explorador` | Patrullaje autónomo: siempre en movimiento, se orienta hacia el espacio más abierto |
-| `ros2 run kalman_demos seguidor_paredes` | Se mantiene a distancia constante de la pared izquierda |
-
-### Control
-
-| Comando | Descripción |
-|---|---|
-| `ros2 run kalman_demos control_p` | Controlador proporcional: gira hasta alcanzar un ángulo objetivo |
-
-### IMU
-
-| Comando | Descripción |
-|---|---|
-| `ros2 run kalman_demos antivuelco` | Detecta inclinación > umbral (levantamiento o empuje) y detiene el robot |
-
-### Visualización / Interactivo
-
-| Comando | Descripción |
-|---|---|
-| `ros2 run kalman_demos telemetria_live` | Dashboard en terminal: posición, velocidad, batería, WiFi e IMU en tiempo real |
-| `ros2 run kalman_demos radar` | Vista del LiDAR estilo radar actualizándose en terminal a ~2 Hz |
-
-### Parámetros opcionales
-
-```bash
-ros2 run kalman_demos cuadrado        --ros-args -p lado:=0.5
-ros2 run kalman_demos espiral         --ros-args -p duracion:=60.0
-ros2 run kalman_demos explorador      --ros-args -p burbuja:=0.28
-ros2 run kalman_demos control_p       --ros-args -p angulo_objetivo:=90.0
-ros2 run kalman_demos antivuelco      --ros-args -p umbral:=20.0
-ros2 run kalman_demos radar           --ros-args -p escala:=0.05 -p radio:=2.0
-```
+Estos demos solo necesitan odometría o IMU — el LiDAR puede estar apagado.
 
 ---
 
-## Mapeo y Navegación
-
-> El robot ya está corriendo en el laboratorio remoto con todos sus tópicos expuestos. Los siguientes comandos se ejecutan desde tu laptop.
-
-### Mapeo con Cartographer
-
-**1. Lanzar Cartographer** (abre RViz con la vista de mapa en construcción):
+### `cuadrado` — Traza un cuadrado usando odometría
 
 ```bash
-ros2 launch kalman_bringup cartographer.launch.py use_sim_time:=false
+ros2 run kalman_demos cuadrado
+ros2 run kalman_demos cuadrado --ros-args -p lado:=0.5
 ```
 
-**2. Mover el robot** para que explore el entorno (usa teleop o los demos de movimiento).
+**Qué hace:** El robot avanza un lado, gira 90°, y repite cuatro veces. Al completar el cuadrado el nodo se detiene solo.
 
-**3. Guardar el mapa** cuando esté completo:
+**Qué usa:**
+- `/odom` (`nav_msgs/Odometry`) — lee posición `(x, y)` y orientación `yaw` para saber cuánto ha avanzado y girado
+- `/cmd_vel` (`geometry_msgs/Twist`) — envía comandos de velocidad lineal y angular
 
-```bash
-ros2 run nav2_map_server map_saver_cli -f ~/ros2_ws/src/kit-kalman-demos/kalman_bringup/map/mapa_kalman
-```
+**Parámetro:** `lado` (metros, default `0.4`)
 
-Genera `mapa_kalman.pgm` y `mapa_kalman.yaml` en la carpeta `map/` del paquete.
-
-**4. Recompilar** para que el mapa quede disponible en la instalación:
-
-```bash
-cd ~/ros2_ws
-colcon build --packages-select kalman_bringup
-source install/setup.bash
-```
+**Código:** [kalman_demos/cuadrado.py](kalman_demos/kalman_demos/cuadrado.py)
 
 ---
 
-### Navegación autónoma con Nav2
-
-Requiere tener un mapa guardado (ver sección anterior).
-
-**1. Lanzar navegación** (abre RViz con el mapa y las herramientas de Nav2):
+### `control_p` — Controlador proporcional de orientación
 
 ```bash
-ros2 launch kalman_bringup navigation.launch.py use_sim_time:=false robot_model:=kalman_description slam:=False
+ros2 run kalman_demos control_p
+ros2 run kalman_demos control_p --ros-args -p angulo_objetivo:=90.0
+ros2 run kalman_demos control_p --ros-args -p angulo_objetivo:=-45.0
 ```
 
-**2. Establecer la posición inicial** del robot en RViz usando la herramienta **2D Pose Estimate**.
+**Qué hace:** El robot gira hasta alcanzar un ángulo objetivo (relativo a su orientación inicial) y se detiene. La velocidad angular es proporcional al error: gira rápido cuando está lejos del objetivo y frena suavemente al acercarse.
 
-**3. Asignar un objetivo** usando la herramienta **2D Nav Goal** en RViz. El robot planificará la ruta y se desplazará de forma autónoma evitando obstáculos.
+**Qué usa:**
+- `/odom` (`nav_msgs/Odometry`) — lee la orientación `yaw` actual del robot
+- `/cmd_vel` (`geometry_msgs/Twist`) — envía velocidad angular proporcional al error
+
+**Parámetro:** `angulo_objetivo` (grados, default `90.0`)
+
+**Código:** [kalman_demos/control_p.py](kalman_demos/kalman_demos/control_p.py)
+
+---
+
+### `telemetria_live` — Dashboard en terminal
+
+```bash
+ros2 run kalman_demos telemetria_live
+```
+
+**Qué hace:** Muestra un panel actualizado a 2 Hz con: posición `(x, y)` y orientación, velocidad lineal y angular, voltaje y porcentaje de batería, y ángulos roll/pitch del IMU. No envía nada al robot — es solo lectura.
+
+> **Cómo usarlo:** abre el joystick en el navegador del laboratorio, mueve el robot y observa cómo cambian en tiempo real la posición, velocidad e IMU en el panel.
+
+**Qué usa:**
+- `/odom` (`nav_msgs/Odometry`) — posición, orientación y velocidades
+- `/battery_state` (`sensor_msgs/BatteryState`) — voltaje y porcentaje
+- `/imu` (`sensor_msgs/Imu`) — roll y pitch
+
+**Código:** [kalman_demos/telemetria_live.py](kalman_demos/kalman_demos/telemetria_live.py)
+
+---
+
+### Con LiDAR
+
+El robot lleva un LiDAR integrado que está **apagado por defecto**. Antes de ejecutar cualquiera de los siguientes demos, enciéndelo publicando una vez en su tópico de control:
+
+```bash
+ros2 topic pub -t 5 /lidar_power std_msgs/msg/Bool "data: true"
+```
+
+Una vez encendido, verifica que esté publicando:
+
+```bash
+ros2 topic hz /scan
+```
+
+A partir de aquí ya puedes ejecutar los demos que usan el LiDAR.
+
+---
+
+### `evitar_obstaculos` — Avanza y esquiva obstáculos
+
+```bash
+ros2 run kalman_demos evitar_obstaculos
+```
+
+**Qué hace:** El robot avanza en línea recta. Cuando el LiDAR detecta un obstáculo al frente a menos de 35 cm, gira hacia el lado con más espacio libre hasta despejarse y retoma el avance.
+
+**Qué usa:**
+- `/scan` (`sensor_msgs/LaserScan`) — lee distancias al frente, izquierda y derecha
+- `/cmd_vel` (`geometry_msgs/Twist`) — envía comandos de avance o giro
+
+**Código:** [kalman_demos/evitar_obstaculos.py](kalman_demos/kalman_demos/evitar_obstaculos.py)
+
+---
+
+### `explorador` — Patrullaje autónomo continuo
+
+```bash
+ros2 run kalman_demos explorador
+ros2 run kalman_demos explorador --ros-args -p burbuja:=0.28
+```
+
+**Qué hace:** El robot siempre está en movimiento. Cada ciclo busca la ventana más despejada en el semicírculo frontal y orienta el robot hacia allá suavemente. Si algún lateral entra en la "burbuja" de seguridad, corrige la dirección para alejarse. No hay estados discretos — el movimiento es fluido y continuo.
+
+**Qué usa:**
+- `/scan` (`sensor_msgs/LaserScan`) — análisis del semicírculo frontal y laterales
+- `/cmd_vel` (`geometry_msgs/Twist`) — velocidad lineal constante + angular variable
+
+**Parámetro:** `burbuja` (metros, radio de seguridad lateral, default `0.20`)
+
+**Código:** [kalman_demos/explorador.py](kalman_demos/kalman_demos/explorador.py)
+
+---
+
+### `seguidor_paredes` — Sigue la pared izquierda
+
+```bash
+ros2 run kalman_demos seguidor_paredes
+```
+
+**Qué hace:** El robot avanza manteniéndose a 35 cm de la pared izquierda usando un controlador proporcional. Si hay un obstáculo al frente, gira a la derecha. Si no hay pared cerca, avanza recto esperando encontrarla.
+
+**Qué usa:**
+- `/scan` (`sensor_msgs/LaserScan`) — mide distancia frontal y a la pared izquierda
+- `/cmd_vel` (`geometry_msgs/Twist`) — velocidad lineal + corrección angular proporcional al error de distancia
+
+**Código:** [kalman_demos/seguidor_paredes.py](kalman_demos/kalman_demos/seguidor_paredes.py)
+
+---
+
+### `radar` — Vista LiDAR estilo radar en terminal
+
+```bash
+ros2 run kalman_demos radar
+ros2 run kalman_demos radar --ros-args -p escala:=0.05 -p radio:=2.0
+```
+
+**Qué hace:** Dibuja un mapa ASCII de 61×31 caracteres centrado en el robot donde cada `■` es un obstáculo detectado por el LiDAR, referenciado al frame de odometría (los puntos no se mueven al desplazarte). Se actualiza a ~2 Hz.
+
+> **Visualización básica:** esta vista está limitada por la resolución del terminal. Para una visualización completa con el modelo del robot, LiDAR y odometría en tiempo real, usa RViz:
+>
+> ```bash
+> ros2 run rviz2 rviz2 -d ~/nexus_ws/src/kit-kalman-demos/kalman_description/rviz/robot.rviz
+> ```
+
+**Qué usa:**
+- `/odom` (`nav_msgs/Odometry`) — posición del robot en el mundo para referenciar los puntos
+- `/scan` (`sensor_msgs/LaserScan`) — lecturas del LiDAR convertidas a coordenadas del mundo
+
+**Parámetros:** `escala` (metros por celda, default `0.05`) · `radio` (alcance máximo a mostrar en metros, default `2.0`)
+
+**Código:** [kalman_demos/radar.py](kalman_demos/kalman_demos/radar.py)
+
+---
+
+## Resumen de tópicos usados
+
+| Tópico | Tipo | Usado por |
+|---|---|---|
+| `/cmd_vel` | `geometry_msgs/Twist` | cuadrado, evitar_obstaculos, explorador, seguidor_paredes, control_p |
+| `/odom` | `nav_msgs/Odometry` | cuadrado, control_p, telemetria_live, radar |
+| `/scan` | `sensor_msgs/LaserScan` | evitar_obstaculos, explorador, seguidor_paredes, radar |
+| `/imu` | `sensor_msgs/Imu` | telemetria_live |
+| `/battery_state` | `sensor_msgs/BatteryState` | telemetria_live |
+| `/lidar_power` | `std_msgs/Bool` | encender el LiDAR antes de los demos con `/scan` |
+
+---
+
+> **Simulación:** los demos `espiral`, `antivuelco` y las funciones de Mapeo y Navegación requieren más espacio o condiciones que el escenario físico no permite. Consulta [README_simulacion.md](README_simulacion.md) para ejecutarlos en Gazebo.
