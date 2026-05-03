@@ -1,6 +1,6 @@
 # Kit-Kalman Demos
 
-Nodos ROS 2 de demostración para el Kit-Kalman. Diseñados para ejecutarse directamente desde tu laptop conectada al robot del laboratorio remoto.
+Nodos ROS 2 de demostración para el Nexus. Diseñados para ejecutarse directamente desde tu laptop conectada al robot del laboratorio remoto.
 
 Todos los códigos están en:
 
@@ -51,16 +51,9 @@ source install/setup.bash
 echo "source ~/nexus_ws/install/setup.bash" >> ~/.bashrc
 ```
 
-### 4. Ejecutar un demo
-
-```bash
-ros2 run kalman_demos cuadrado
-```
-
----
-
 ## Demos disponibles
 
+> **Orientación del robot:** la parte delantera se distingue por el logo de Kalman Robotics ubicado en el frontal del chasis.
 ### Sin LiDAR
 
 Estos demos solo necesitan odometría o IMU — el LiDAR puede estar apagado.
@@ -68,10 +61,13 @@ Estos demos solo necesitan odometría o IMU — el LiDAR puede estar apagado.
 ---
 
 ### `cuadrado` — Traza un cuadrado usando odometría
+Para este primer demo se recomienda que el robot esté posicionado en un punto despejado para que pueda realizar el cuadrado. Puedes conseguirlo llevando al robot con el joystick virtual.
+
+<img src="img/ejemplo_cuadrado.png" alt="Ejemplo del robot trazando un cuadrado" width="300"/>
+
 
 ```bash
-ros2 run kalman_demos cuadrado
-ros2 run kalman_demos cuadrado --ros-args -p lado:=0.5
+ros2 run kalman_demos cuadrado --ros-args -p lado:=0.2
 ```
 
 **Qué hace:** El robot avanza un lado, gira 90°, y repite cuatro veces. Al completar el cuadrado el nodo se detiene solo.
@@ -80,13 +76,15 @@ ros2 run kalman_demos cuadrado --ros-args -p lado:=0.5
 - `/odom` (`nav_msgs/Odometry`) — lee posición `(x, y)` y orientación `yaw` para saber cuánto ha avanzado y girado
 - `/cmd_vel` (`geometry_msgs/Twist`) — envía comandos de velocidad lineal y angular
 
-**Parámetro:** `lado` (metros, default `0.4`)
+**Parámetro:** `lado` (metros, default `0.2`)
 
 **Código:** [kalman_demos/cuadrado.py](kalman_demos/kalman_demos/cuadrado.py)
 
 ---
 
 ### `control_p` — Controlador proporcional de orientación
+Para este primer demo se recomenda llevar al robot al centro del escenario como se muestra en la imagen.
+<img src="img/ejemplo_control_p.png" alt="Ejemplo del robot trazando un cuadrado" width="300"/>
 
 ```bash
 ros2 run kalman_demos control_p
@@ -143,6 +141,32 @@ A partir de aquí ya puedes ejecutar los demos que usan el LiDAR.
 
 ---
 
+### `radar` — Vista LiDAR estilo radar en terminal
+
+```bash
+ros2 run kalman_demos radar
+ros2 run kalman_demos radar --ros-args -p escala:=0.05 -p radio:=2.0
+```
+
+**Qué hace:** Dibuja un mapa ASCII de 61×31 caracteres centrado en el robot donde cada `■` es un obstáculo detectado por el LiDAR, referenciado al frame de odometría (los puntos no se mueven al desplazarte). Se actualiza a ~2 Hz.
+
+> **Visualización básica:** esta vista está limitada por la resolución del terminal. Para una visualización completa con el modelo del robot, LiDAR y odometría en tiempo real, usa RViz:
+>
+> ```bash
+> ros2 run rviz2 rviz2 -d ~/nexus_ws/src/kit-kalman-demos/kalman_description/rviz/robot.rviz
+> ```
+
+**Qué usa:**
+- `/odom` (`nav_msgs/Odometry`) — posición del robot en el mundo para referenciar los puntos
+- `/scan` (`sensor_msgs/LaserScan`) — lecturas del LiDAR convertidas a coordenadas del mundo
+
+**Parámetros:** `escala` (metros por celda, default `0.05`) · `radio` (alcance máximo a mostrar en metros, default `2.0`)
+
+**Código:** [kalman_demos/radar.py](kalman_demos/kalman_demos/radar.py)
+
+---
+
+
 ### `evitar_obstaculos` — Avanza y esquiva obstáculos
 
 ```bash
@@ -194,30 +218,7 @@ ros2 run kalman_demos seguidor_paredes
 
 ---
 
-### `radar` — Vista LiDAR estilo radar en terminal
 
-```bash
-ros2 run kalman_demos radar
-ros2 run kalman_demos radar --ros-args -p escala:=0.05 -p radio:=2.0
-```
-
-**Qué hace:** Dibuja un mapa ASCII de 61×31 caracteres centrado en el robot donde cada `■` es un obstáculo detectado por el LiDAR, referenciado al frame de odometría (los puntos no se mueven al desplazarte). Se actualiza a ~2 Hz.
-
-> **Visualización básica:** esta vista está limitada por la resolución del terminal. Para una visualización completa con el modelo del robot, LiDAR y odometría en tiempo real, usa RViz:
->
-> ```bash
-> ros2 run rviz2 rviz2 -d ~/nexus_ws/src/kit-kalman-demos/kalman_description/rviz/robot.rviz
-> ```
-
-**Qué usa:**
-- `/odom` (`nav_msgs/Odometry`) — posición del robot en el mundo para referenciar los puntos
-- `/scan` (`sensor_msgs/LaserScan`) — lecturas del LiDAR convertidas a coordenadas del mundo
-
-**Parámetros:** `escala` (metros por celda, default `0.05`) · `radio` (alcance máximo a mostrar en metros, default `2.0`)
-
-**Código:** [kalman_demos/radar.py](kalman_demos/kalman_demos/radar.py)
-
----
 
 ## Resumen de tópicos usados
 
@@ -226,8 +227,6 @@ ros2 run kalman_demos radar --ros-args -p escala:=0.05 -p radio:=2.0
 | `/cmd_vel` | `geometry_msgs/Twist` | cuadrado, evitar_obstaculos, explorador, seguidor_paredes, control_p |
 | `/odom` | `nav_msgs/Odometry` | cuadrado, control_p, telemetria_live, radar |
 | `/scan` | `sensor_msgs/LaserScan` | evitar_obstaculos, explorador, seguidor_paredes, radar |
-| `/imu` | `sensor_msgs/Imu` | telemetria_live |
-| `/battery_state` | `sensor_msgs/BatteryState` | telemetria_live |
 | `/lidar_power` | `std_msgs/Bool` | encender el LiDAR antes de los demos con `/scan` |
 
 ---
