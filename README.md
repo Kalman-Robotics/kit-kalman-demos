@@ -154,7 +154,9 @@ ros2 run kalman_demos telemetria_live
 
 ### Con LiDAR
 
-El robot lleva un LiDAR integrado que está **apagado por defecto**. Antes de ejecutar cualquiera de los siguientes demos, enciéndelo publicando una vez en su tópico de control:
+El Nexus lleva un **LiDAR integrado** — uno de sus principales diferenciadores. Este sensor mide distancias en 360° alrededor del robot y es lo que permite esquivar obstáculos, seguir paredes o explorar un espacio de forma autónoma. Todos los demos de esta sección lo usan como fuente principal de percepción.
+
+El LiDAR está **apagado por defecto**. Antes de ejecutar cualquiera de los siguientes demos, enciéndelo publicando una vez en su tópico de control:
 
 ```bash
 ros2 topic pub -t 5 /lidar_power std_msgs/msg/Bool "data: true"
@@ -170,7 +172,47 @@ A partir de aquí ya puedes ejecutar los demos que usan el LiDAR.
 
 ---
 
+### `radar` — Visualiza lo que ve el LiDAR en tiempo real
+
+Antes de lanzar cualquier demo autónomo, se recomienda empezar aquí. Este demo te muestra exactamente qué está detectando el LiDAR del robot: los obstáculos aparecen como puntos en un mapa centrado en el robot, actualizado en tiempo real. Entender lo que ve el sensor es clave para interpretar el comportamiento de los demás demos.
+
+Abre un terminal nuevo y ejecuta:
+
+**Opción 1 — configuración por defecto:**
+
+```bash
+ros2 run kalman_demos radar
+```
+
+**Opción 2 — ajustar escala y radio de visión:** útil si quieres ver obstáculos más lejanos o con más detalle cercano.
+
+```bash
+ros2 run kalman_demos radar --ros-args -p escala:=0.05 -p radio:=2.0
+```
+
+**Qué hace:** Dibuja un mapa ASCII de 61×31 caracteres centrado en el robot donde cada `■` es un obstáculo detectado por el LiDAR, referenciado al frame de odometría (los puntos no se mueven al desplazarte). Se actualiza a ~2 Hz.
+
+> **Visualización completa con RViz:** para ver el modelo del robot, el LiDAR y la odometría en tiempo real con gráficos, usa RViz:
+>
+> ```bash
+> ros2 run rviz2 rviz2 -d ~/nexus_ws/src/kit-kalman-demos/kalman_description/rviz/robot.rviz
+> ```
+
+<img src="img/ejemplo_rviz_scan.png" alt="Vista del LiDAR en RViz" width="500"/>
+
+**Qué usa:**
+- `/scan` (`sensor_msgs/LaserScan`) — lecturas del LiDAR convertidas a coordenadas del mundo
+- `/odom` (`nav_msgs/Odometry`) — posición del robot en el mundo para referenciar los puntos
+
+**Parámetros:** `escala` (metros por celda, default `0.05`) · `radio` (alcance máximo a mostrar en metros, default `2.0`)
+
+**Código:** [kalman_demos/radar.py](kalman_demos/kalman_demos/radar.py)
+
+---
+
 ### `evitar_obstaculos` — Avanza y esquiva obstáculos
+
+Gracias al LiDAR, el robot puede detectar obstáculos antes de chocar y decidir hacia dónde esquivarlos. Este demo es una buena introducción a cómo el sensor se traduce en comportamiento reactivo.
 
 Abre un terminal nuevo y ejecuta:
 
@@ -181,14 +223,16 @@ ros2 run kalman_demos evitar_obstaculos
 **Qué hace:** El robot avanza en línea recta. Cuando el LiDAR detecta un obstáculo al frente a menos de 35 cm, gira hacia el lado con más espacio libre hasta despejarse y retoma el avance.
 
 **Qué usa:**
-- `/scan` (`sensor_msgs/LaserScan`) — lee distancias al frente, izquierda y derecha
-- `/cmd_vel` (`geometry_msgs/Twist`) — envía comandos de avance o giro
+- `/scan` (`sensor_msgs/LaserScan`) — lee las distancias al frente, izquierda y derecha que reporta el LiDAR
+- `/cmd_vel` (`geometry_msgs/Twist`) — envía comandos de avance o giro según lo que detecte el sensor
 
 **Código:** [kalman_demos/evitar_obstaculos.py](kalman_demos/kalman_demos/evitar_obstaculos.py)
 
 ---
 
 ### `explorador` — Patrullaje autónomo continuo
+
+Este demo lleva el uso del LiDAR un paso más allá: en lugar de reaccionar solo cuando hay un obstáculo, el robot analiza continuamente todo el semicírculo frontal para elegir siempre la dirección más despejada.
 
 Abre un terminal nuevo y ejecuta:
 
@@ -204,10 +248,10 @@ ros2 run kalman_demos explorador
 ros2 run kalman_demos explorador --ros-args -p burbuja:=0.28
 ```
 
-**Qué hace:** El robot siempre está en movimiento. Cada ciclo busca la ventana más despejada en el semicírculo frontal y orienta el robot hacia allá suavemente. Si algún lateral entra en la "burbuja" de seguridad, corrige la dirección para alejarse. No hay estados discretos — el movimiento es fluido y continuo.
+**Qué hace:** El robot siempre está en movimiento. Cada ciclo usa las lecturas del LiDAR para buscar la ventana más despejada en el semicírculo frontal y orienta el robot hacia allá suavemente. Si algún lateral entra en la "burbuja" de seguridad, corrige la dirección para alejarse. No hay estados discretos — el movimiento es fluido y continuo.
 
 **Qué usa:**
-- `/scan` (`sensor_msgs/LaserScan`) — análisis del semicírculo frontal y laterales
+- `/scan` (`sensor_msgs/LaserScan`) — análisis continuo del semicírculo frontal y laterales con el LiDAR
 - `/cmd_vel` (`geometry_msgs/Twist`) — velocidad lineal constante + angular variable
 
 **Parámetro:** `burbuja` (metros, radio de seguridad lateral, default `0.20`)
@@ -218,6 +262,8 @@ ros2 run kalman_demos explorador --ros-args -p burbuja:=0.28
 
 ### `seguidor_paredes` — Sigue la pared izquierda
 
+Este demo muestra cómo el LiDAR permite mantener una distancia precisa respecto a una superficie. El robot no sigue una trayectoria preprogramada — usa las mediciones del sensor en tiempo real para corregir su posición continuamente.
+
 Abre un terminal nuevo y ejecuta:
 
 ```bash
@@ -227,46 +273,10 @@ ros2 run kalman_demos seguidor_paredes
 **Qué hace:** El robot avanza manteniéndose a 35 cm de la pared izquierda usando un controlador proporcional. Si hay un obstáculo al frente, gira a la derecha. Si no hay pared cerca, avanza recto esperando encontrarla.
 
 **Qué usa:**
-- `/scan` (`sensor_msgs/LaserScan`) — mide distancia frontal y a la pared izquierda
+- `/scan` (`sensor_msgs/LaserScan`) — mide con el LiDAR la distancia frontal y a la pared izquierda en tiempo real
 - `/cmd_vel` (`geometry_msgs/Twist`) — velocidad lineal + corrección angular proporcional al error de distancia
 
 **Código:** [kalman_demos/seguidor_paredes.py](kalman_demos/kalman_demos/seguidor_paredes.py)
-
----
-
-### `radar` — Vista LiDAR estilo radar en terminal
-
-Abre un terminal nuevo y ejecuta:
-
-**Opción 1 — configuración por defecto:**
-
-```bash
-ros2 run kalman_demos radar
-```
-
-**Opción 2 — ajustar escala y radio de visión:** útil si quieres ver obstáculos más lejanos o más detalle cercano.
-
-```bash
-ros2 run kalman_demos radar --ros-args -p escala:=0.05 -p radio:=2.0
-```
-
-**Qué hace:** Dibuja un mapa ASCII de 61×31 caracteres centrado en el robot donde cada `■` es un obstáculo detectado por el LiDAR, referenciado al frame de odometría (los puntos no se mueven al desplazarte). Se actualiza a ~2 Hz.
-
-> **Visualización básica:** esta vista está limitada por la resolución del terminal. Para una visualización completa con el modelo del robot, LiDAR y odometría en tiempo real, usa RViz:
->
-> ```bash
-> ros2 run rviz2 rviz2 -d ~/nexus_ws/src/kit-kalman-demos/kalman_description/rviz/robot.rviz
-> ```
-
-<img src="img/ejemplo_rviz_scan.png" alt="Vista del LiDAR en RViz" width="300"/>
-
-**Qué usa:**
-- `/odom` (`nav_msgs/Odometry`) — posición del robot en el mundo para referenciar los puntos
-- `/scan` (`sensor_msgs/LaserScan`) — lecturas del LiDAR convertidas a coordenadas del mundo
-
-**Parámetros:** `escala` (metros por celda, default `0.05`) · `radio` (alcance máximo a mostrar en metros, default `2.0`)
-
-**Código:** [kalman_demos/radar.py](kalman_demos/kalman_demos/radar.py)
 
 ---
 
@@ -282,3 +292,9 @@ ros2 run kalman_demos radar --ros-args -p escala:=0.05 -p radio:=2.0
 ---
 
 > **Simulación:** los demos `espiral`, `antivuelco` y las funciones de Mapeo y Navegación requieren más espacio o condiciones que el escenario físico no permite. Consulta [README_simulacion.md](README_simulacion.md) para ejecutarlos en Gazebo.
+
+---
+
+## Próximamente — Navegación
+
+El Nexus también es capaz de realizar navegación autónoma: construir un mapa del entorno, localizarse dentro de él y planificar rutas hacia un destino evitando obstáculos. En los próximos días estaremos actualizando este repositorio con ejemplos de navegación. ¡Mantente al tanto!
