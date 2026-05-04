@@ -32,7 +32,7 @@ class Cuadrado(Node):
     def __init__(self):
         super().__init__('cuadrado')
 
-        self.declare_parameter('lado', 0.4)  # metros
+        self.declare_parameter('lado', 0.2)  # metros
         self.lado = self.get_parameter('lado').value
 
         self.pub = self.create_publisher(Twist, '/cmd_vel', 10)

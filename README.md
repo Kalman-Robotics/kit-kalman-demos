@@ -1,4 +1,4 @@
-# Kit-Kalman Demos
+# Nexus Demos
 
 Nodos ROS 2 de demostración para el Nexus. Diseñados para ejecutarse directamente desde tu laptop conectada al robot del laboratorio remoto.
 
