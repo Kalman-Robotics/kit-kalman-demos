@@ -11,7 +11,7 @@
                     <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
                 </geometry-->
                 <geometry>
-                    <mesh filename="file://$(find kalman_description)/meshes/rueda.stl" scale="0.001 0.001 0.001"/>
+                    <mesh filename="package://kalman_description/meshes/rueda.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <material name="black">
                     <color rgba="0.0 0.0 0.0 1.0"/>
