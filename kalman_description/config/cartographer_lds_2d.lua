@@ -35,7 +35,7 @@ options = {
   num_multi_echo_laser_scans = 0,
   num_subdivisions_per_laser_scan = 1,
   num_point_clouds = 0,
-  lookup_transform_timeout_sec = 0.2,
+  lookup_transform_timeout_sec = 0.3,
   submap_publish_period_sec = 0.3,
   pose_publish_period_sec = 5e-3,
   trajectory_publish_period_sec = 30e-3,
@@ -51,7 +51,7 @@ MAP_BUILDER.use_trajectory_builder_2d = true
 -- https://google-cartographer-ros.readthedocs.io/en/latest/algo_walkthrough.html
 -- https://github.com/cartographer-project/cartographer/tree/master/configuration_files
 -- https://google-cartographer-ros.readthedocs.io/en/latest/tuning.html
-TRAJECTORY_BUILDER_2D.min_range = 0.15
+TRAJECTORY_BUILDER_2D.min_range = 0.10
 TRAJECTORY_BUILDER_2D.max_range = 3.5
 TRAJECTORY_BUILDER_2D.missing_data_ray_length = 3.
 TRAJECTORY_BUILDER_2D.use_imu_data = false
@@ -67,7 +67,7 @@ TRAJECTORY_BUILDER_2D.use_online_correlative_scan_matching = true
 -- TRAJECTORY_BUILDER_2D.ceres_scan_matcher.rotation_weight = 0.01
 -- TRAJECTORY_BUILDER_2D.motion_filter.max_angle_radians = math.rad(1.0)
 
--- POSE_GRAPH.constraint_builder.min_score = 0.65
+POSE_GRAPH.constraint_builder.min_score = 0.70
 -- POSE_GRAPH.constraint_builder.global_localization_min_score = 0.7
 -- POSE_GRAPH.matcher_translation_weight = 1e5
 -- POSE_GRAPH.matcher_rotation_weight = 0.01

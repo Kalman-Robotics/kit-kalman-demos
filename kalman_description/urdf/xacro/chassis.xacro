@@ -17,7 +17,7 @@
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
-                    <mesh filename="file://$(find kalman_description)/meshes/carcasa.stl" scale="0.001 0.001 0.001"/>
+                    <mesh filename="package://kalman_description/meshes/carcasa.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <material name="steel"/>
             </visual>
@@ -47,7 +47,7 @@
             <visual>
                 <origin xyz="0 0 0" rpy="0 0 0"/>
                 <geometry>
-                    <mesh filename="file://$(find kalman_description)/meshes/antena.stl" scale="0.001 0.001 0.001"/>
+                    <mesh filename="package://kalman_description/meshes/antena.stl" scale="0.001 0.001 0.001"/>
                 </geometry>
                 <material name="steel"/>
             </visual>
