@@ -303,7 +303,7 @@ ros2 run kalman_demos seguidor_paredes
 ---
 </details>
 
-<details open>
+<details>
 <summary><b>Navegación autónoma</b></summary>
 
 El Nexus puede construir un mapa del entorno, localizarse dentro de él y planificar rutas hacia un destino evitando obstáculos en tiempo real. Esta sección cubre el flujo completo: verificar sensores, mapear el espacio y luego navegar de forma autónoma.
