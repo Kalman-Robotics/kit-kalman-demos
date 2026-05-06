@@ -1,7 +1,6 @@
 # kalman_bringup package
 
 - [kalman\_bringup package](#kalman_bringup-package)
-  - [Consideraciones previas](#consideraciones-previas)
   - [Archivos Launch](#archivos-launch)
     - [`inspect_urdf.launch.py`](#inspect_urdflaunchpy)
     - [`cartographer.launch.py`](#cartographerlaunchpy)
@@ -13,19 +12,6 @@
     - [Mapeo](#mapeo)
     - [Navegación utilizando un mapa existente](#navegación-utilizando-un-mapa-existente)
     - [Monitoreo por RViz](#monitoreo-por-rviz)
-
-
-## Consideraciones previas
-
-- Haber subido el firmware Kalman y configuración de WiFi a la placa ESP32 del robot siguiendo las [instrucciones](https://github.com/Kalman-Robotics/kit-kalman-firmware).
-- Encienda la alimentación del robot.
-- Asegúrese de que el robot esté conectado a la misma red Wi‑Fi 2.4G.
-- Ejecutar el agente de Micro-ROS
-- El robot debería conectarse automáticamente al agente de Micro-ROS que se está ejecutando en la computadora.
-- Establecida la comunicación entre el robot y la computadora, podemos proceder a lanzar los nodos de ROS2 para el robot.
-
-> [!NOTE] Puede verificar la conexión exitosa observando el patrón de parpadeo del LED de la placa ESP32.
-Si el patrón de parpadeo indica un error, conecte el PC a la placa ESP32 del robot mediante un cable USB, abra un Monitor Serie.
 
 ## Archivos Launch
 
