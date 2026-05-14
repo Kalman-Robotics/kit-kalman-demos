@@ -93,7 +93,7 @@ class Radar(Node):
 
         # Convención del LiDAR de este robot:
         #   índice 0   = derecha del robot
-        #   índice 540 = frente del robot  (3*N/4, N=720)
+        #   índice 270 = frente del robot  (3*N/4, N=360)
         #   sentido horario → ángulos DECRECEN respecto al frente
         # Frente del robot en el mundo = ryaw (yaw de odometría, eje +x = este)
         # Ángulo de cada rayo en el marco del robot:

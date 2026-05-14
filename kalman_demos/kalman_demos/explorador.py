@@ -10,11 +10,11 @@ No hay estados discretos — la velocidad angular se actualiza cada ciclo
 de forma fluida, lo que produce trayectorias más naturales que un
 alternado avanzar/girar.
 
-Mapa de índices del LiDAR (720 puntos, 0 = derecha, sentido horario):
-  derecha:     0 / 720
-  atrás:       180
-  izquierda:   360
-  frente:      540  (3*N/4)
+Mapa de índices del LiDAR (360 puntos, 0 = derecha, sentido horario):
+  derecha:     0 / 360
+  atrás:       90
+  izquierda:   180
+  frente:      270  (3*N/4)
 
 Uso:
     ros2 run kalman_demos explorador
@@ -32,22 +32,22 @@ from sensor_msgs.msg import LaserScan
 # ── Parámetros del robot ────────────────────────────────────────────────────
 VEL_LINEAL   = 0.05    # m/s  (límite real = 0.10)
 VEL_ANG_MAX  = math.pi / 2   # rad/s — saturación de angular_z
-GAIN_DIR     = 0.5     # ganancia proporcional sobre la dirección más libre
+GAIN_DIR     = 0.25    # ganancia proporcional sobre la dirección más libre
 VARIACION    = 0.75     # rad/s — paso de corrección lateral por ciclo
 
-# Zonas de análisis (índices sobre 720 rayos, sentido horario, frente=540)
-FRONT_MIN    = 450     # inicio semicírculo frontal
-FRONT_MAX    = 630     # fin   semicírculo frontal
-IDX_FRENTE   = 540     # índice del rayo frontal central
-LEFT_MIN     = 300     # inicio zona lateral izquierda
-LEFT_MAX     = 420     # fin   zona lateral izquierda
-RIGHT_MIN_A  = 660     # zona lateral derecha (segmento alto)
-RIGHT_MAX_A  = 720
+# Zonas de análisis (índices sobre 360 rayos, sentido horario, frente=270)
+FRONT_MIN    = 225     # inicio semicírculo frontal
+FRONT_MAX    = 315     # fin   semicírculo frontal
+IDX_FRENTE   = 270     # índice del rayo frontal central
+LEFT_MIN     = 150     # inicio zona lateral izquierda
+LEFT_MAX     = 210     # fin   zona lateral izquierda
+RIGHT_MIN_A  = 330     # zona lateral derecha (segmento alto)
+RIGHT_MAX_A  = 360
 RIGHT_MIN_B  = 0       # zona lateral derecha (segmento bajo, wrap)
-RIGHT_MAX_B  = 60
+RIGHT_MAX_B  = 30
 
 MAX_RANGE    = 3.5     # m — distancia máxima válida (ignora inf)
-ANCHO_VENTANA = 72    # rayos — ancho mínimo de paso (~15° a 0.5°/rayo, ≈ ancho del robot a 1m)
+ANCHO_VENTANA = 36    # rayos — ancho mínimo de paso (~36° a 1°/rayo, ≈ ancho del robot a 1m)
 
 
 class Explorador(Node):
@@ -105,7 +105,7 @@ class Explorador(Node):
 
         for k in range(len(indices_frontales) - ANCHO_VENTANA + 1):
             ventana = indices_frontales[k:k + ANCHO_VENTANA]
-            vals = [ranges[i] for i in ventana if 0.05 < ranges[i] < MAX_RANGE]
+            vals = [ranges[i] for i in ventana if math.isfinite(ranges[i]) and ranges[i] < MAX_RANGE]
             if not vals:
                 continue
             score = min(vals)
@@ -113,7 +113,7 @@ class Explorador(Node):
                 mejor_score  = score
                 mejor_centro = indices_frontales[k + ANCHO_VENTANA // 2]
 
-        direction = (IDX_FRENTE - mejor_centro) * math.pi / 360.0
+        direction = (IDX_FRENTE - mejor_centro) * math.pi / 180.0
         self._angular_z = direction * GAIN_DIR
 
         self.get_logger().debug(
@@ -149,7 +149,7 @@ class Explorador(Node):
 
     @staticmethod
     def _sector_min(ranges, a, b):
-        vals = [r for r in ranges[a:b] if 0.05 < r < MAX_RANGE]
+        vals = [r for r in ranges[a:b] if math.isfinite(r) and r < MAX_RANGE]
         return min(vals) if vals else MAX_RANGE
 
 

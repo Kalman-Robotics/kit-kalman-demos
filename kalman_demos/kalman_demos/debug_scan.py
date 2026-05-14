@@ -45,17 +45,11 @@ class DebugScan(Node):
         i_izq    = n // 2
         i_frente = 3 * n // 4
 
-        def sector(centro, ventana=10):
-            vals = [msg.ranges[(centro + d) % n]
-                    for d in range(-ventana, ventana + 1)
-                    if msg.range_min < msg.ranges[(centro + d) % n] < msg.range_max]
-            return min(vals) if vals else float('inf')
-
         self.get_logger().info(
-            f'FRENTE[{i_frente}]={sector(i_frente):5.2f}m  '
-            f'ATRAS[{i_atras}]={sector(i_atras):5.2f}m  '
-            f'DER[{i_der}]={sector(i_der):5.2f}m  '
-            f'IZQ[{i_izq}]={sector(i_izq):5.2f}m'
+            f'FRENTE[{i_frente}]={msg.ranges[i_frente]:5.2f}m  '
+            f'ATRAS[{i_atras}]={msg.ranges[i_atras]:5.2f}m  '
+            f'DER[{i_der}]={msg.ranges[i_der]:5.2f}m  '
+            f'IZQ[{i_izq}]={msg.ranges[i_izq]:5.2f}m'
         )
 
 

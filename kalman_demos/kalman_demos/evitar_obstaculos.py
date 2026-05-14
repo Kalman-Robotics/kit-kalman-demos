@@ -4,14 +4,16 @@ Avanza en línea recta. Cuando detecta un obstáculo al frente a menos de
 DIST_STOP metros, gira hacia el lado con más espacio libre hasta despejarse
 y retoma el avance.
 
-360 lecturas desde la DERECHA del robot (720 puntos, sentido horario):
-  frente:    índices 510-570  (270° horario = 3*N/4)
-  derecha:   índices 0-60 y 660-720
-  izquierda: índices 300-420
+360 lecturas desde la DERECHA del robot (sentido horario):
+  frente:    índices 255-285  (270° horario = 3*N/4)
+  derecha:   índices 0-30 y 330-360
+  izquierda: índices 150-210
 
 Uso:
     ros2 run kalman_demos evitar_obstaculos
 """
+
+import math
 
 import rclpy
 from geometry_msgs.msg import Twist
@@ -41,12 +43,12 @@ class EvitarObstaculos(Node):
 
     def _scan_cb(self, msg):
         def sector_min(a, b):
-            vals = [r for r in msg.ranges[a:b] if r > 0.01]
+            vals = [r for r in msg.ranges[a:b] if math.isfinite(r)]
             return min(vals, default=DIST_MAX)
 
-        frente    = sector_min(510, 570)
-        derecha   = min(sector_min(0, 60), sector_min(660, 720))
-        izquierda = sector_min(300, 420)
+        frente    = sector_min(255, 285)
+        derecha   = min(sector_min(0, 30), sector_min(330, 360))
+        izquierda = sector_min(150, 210)
 
         self.get_logger().info(
             f'frente={frente:.2f}  der={derecha:.2f}  izq={izquierda:.2f}')
