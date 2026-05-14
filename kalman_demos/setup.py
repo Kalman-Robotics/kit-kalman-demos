@@ -29,7 +29,8 @@ setup(
             'antivuelco      = kalman_demos.antivuelco:main',
             'telemetria_live = kalman_demos.telemetria_live:main',
             'radar           = kalman_demos.radar:main',
-            'debug_scan      = kalman_demos.debug_scan:main',
+            'debug_scan        = kalman_demos.debug_scan:main',
+            'debug_intensities = kalman_demos.debug_intensities:main',
         ],
     },
 )
