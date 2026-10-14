@@ -167,17 +167,14 @@ local_costmap:
       width: 3
       height: 3
       resolution: 0.02
-      # Rectangulo medido desde base_footprint (eje de las ruedas): 10 cm adelante,
-      # 14 cm atras y 7 cm a cada lado. Radio inscrito 0.07, circunscrito 0.157.
-      footprint: "[[0.10, 0.07], [0.10, -0.07], [-0.14, -0.07], [-0.14, 0.07]]"
+      robot_radius: 0.10
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
 #       cost_scaling_factor: 3.0
         cost_scaling_factor: 2.58
 #       inflation_radius: 0.02
-        # >= radio circunscrito (0.157) para que el planner no roce con la cola
-        inflation_radius: 0.20
+        inflation_radius: 0.11
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -211,9 +208,7 @@ global_costmap:
       publish_frequency: 2.0
       global_frame: "map"
       robot_base_frame: "base_footprint"
-      # Rectangulo medido desde base_footprint (eje de las ruedas): 10 cm adelante,
-      # 14 cm atras y 7 cm a cada lado. Radio inscrito 0.07, circunscrito 0.157.
-      footprint: "[[0.10, 0.07], [0.10, -0.07], [-0.14, -0.07], [-0.14, 0.07]]"
+      robot_radius: 0.10
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
@@ -238,8 +233,7 @@ global_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
 #       cost_scaling_factor: 3.0
         cost_scaling_factor: 2.58
-        # >= radio circunscrito (0.157) para que el planner no roce con la cola
-        inflation_radius: 0.20
+        inflation_radius: 0.11
       always_send_full_costmap: True
 
 # The yaml_filename does not need to be specified since it going to be set by defaults in launch.
