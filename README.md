@@ -14,7 +14,7 @@ Son archivos Python simples — ábrelos, léelos y modifícalos libremente. Cad
 
 ## Prerequisitos
 
-- ROS 2 Humble instalado en tu laptop (esto se hace automáticamente la primera vez que ejecutas el comando de conexión al robot)
+- ROS 2 Humble o Jazzy instalado en tu laptop (esto se hace automáticamente la primera vez que ejecutas el comando de conexión al robot). El mismo repositorio y la misma rama (`main`) sirven para las dos versiones.
 - Conectado al laboratorio remoto
 
 ---
@@ -50,6 +50,21 @@ colcon build --packages-up-to kalman
 source install/setup.bash
 echo "source ~/nexus_ws/install/setup.bash" >> ~/.bashrc
 ```
+
+### ¿Ya lo habías clonado antes? Actualízalo
+
+Si clonaste el repositorio en una sesión anterior, descarga los últimos cambios y vuelve a compilar antes de usarlo:
+
+```bash
+cd ~/nexus_ws/src/kit-kalman-demos
+git checkout main
+git pull --recurse-submodules
+cd ~/nexus_ws
+colcon build --packages-up-to kalman
+source install/setup.bash
+```
+
+> Si `git pull` dice que tienes cambios locales que se sobrescribirían, guárdalos con `git stash` (o descártalos con `git checkout -- .`) y repite el `git pull`.
 
 > [!TIP] **Orientación del robot:** la parte delantera se distingue por el logo de Kalman Robotics ubicado en el frontal del chasis.
 
