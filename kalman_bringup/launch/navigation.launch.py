@@ -41,10 +41,18 @@ def make_nodes(context: LaunchContext, robot_model, map, use_sim_time, slam):
         'rviz',
         'navigation.rviz')
 
+    # Los parametros de Nav2 cambian entre distros (en Jazzy los plugins van
+    # con "::" y hay servidores nuevos): si existe navigation_<distro>.yaml se
+    # usa ese; si no, navigation.yaml (humble).
     nav_config_path = os.path.join(
         description_package_path,
         'config',
-        'navigation.yaml')
+        'navigation_{}.yaml'.format(os.environ.get('ROS_DISTRO', '')))
+    if not os.path.isfile(nav_config_path):
+        nav_config_path = os.path.join(
+            description_package_path,
+            'config',
+            'navigation.yaml')
 
     print('Rviz2 config : {}'.format(rviz_config_path))
     print('Nav2  config : {}'.format(nav_config_path))

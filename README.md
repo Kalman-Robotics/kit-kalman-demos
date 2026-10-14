@@ -389,6 +389,8 @@ ros2 launch kalman_bringup navigation.launch.py use_sim_time:=false robot_model:
 
 **Qué hace:** Lanza Nav2 con el mapa existente. El robot planifica rutas, evita obstáculos en tiempo real y se desplaza de forma autónoma hacia los objetivos que le indiques desde RViz.
 
+El comando es el mismo en Humble y en Jazzy: el launch elige solo los parámetros de Nav2 según `ROS_DISTRO` (`navigation_jazzy.yaml` en Jazzy, `navigation.yaml` en Humble).
+
 **Qué usa:**
 - `/scan` (`sensor_msgs/LaserScan`) — detección de obstáculos en tiempo real durante la navegación
 - `/odom` (`nav_msgs/Odometry`) — estimación de posición dentro del mapa
