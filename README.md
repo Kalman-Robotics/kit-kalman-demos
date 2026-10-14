@@ -14,7 +14,7 @@ Son archivos Python simples — ábrelos, léelos y modifícalos libremente. Cad
 
 ## Prerequisitos
 
-- ROS 2 Humble o Jazzy instalado en tu laptop (esto se hace automáticamente la primera vez que ejecutas el comando de conexión al robot). El mismo repositorio y la misma rama (`main`) sirven para las dos versiones.
+- ROS 2 Humble o Jazzy instalado en tu laptop (esto se hace automáticamente la primera vez que ejecutas el comando de conexión al robot). El mismo repositorio y la misma rama (`main`) sirven para las dos versiones: no tienes que elegir nada. Si quieres saber cuál tienes, ejecuta `echo $ROS_DISTRO`.
 - Conectado al laboratorio remoto
 
 ---
@@ -41,6 +41,8 @@ sudo rosdep init
 rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 ```
+
+> Si `sudo rosdep init` responde que el archivo `default sources list file already exists`, es que ya estaba inicializado: ignóralo y sigue con los demás comandos.
 
 ### 3. Compilar
 
@@ -386,6 +388,13 @@ ros2 run nav2_map_server map_saver_cli -f mapa_kalman
 
 Esto genera dos archivos en la carpeta actual: `mapa_kalman.yaml` (metadatos del mapa: resolución, origen, ruta a la imagen) y `mapa_kalman.pgm` (la imagen del mapa en sí). Ambos son necesarios para el siguiente paso.
 
+Vuelve a compilar para que la navegación use el mapa nuevo. Si no lo haces, `navigation` sigue cargando la copia anterior que quedó en `install/`:
+
+```bash
+cd ~/nexus_ws
+colcon build --packages-select kalman_bringup
+```
+
 ---
 
 ### Paso 3 — Navegar de forma autónoma con `navigation`
@@ -396,7 +405,7 @@ Con el mapa guardado, ya puedes lanzar la navegación autónoma. El robot usará
 ros2 launch kalman_bringup navigation.launch.py use_sim_time:=false robot_model:=kalman_description slam:=False
 ```
 
-Por defecto usa el mapa instalado al compilar el paquete (`/nexus_ws/install/kalman_bringup/share/kalman_bringup/map/mapa_kalman.yaml`). Si tienes tu propio mapa, pásalo con el argumento `map`:
+Por defecto usa el mapa instalado al compilar el paquete (`~/nexus_ws/install/kalman_bringup/share/kalman_bringup/map/mapa_kalman.yaml`). Si tienes tu propio mapa, pásalo con el argumento `map`:
 
 ```bash
 ros2 launch kalman_bringup navigation.launch.py use_sim_time:=false robot_model:=kalman_description slam:=False map:=/ruta/a/tu_mapa.yaml
@@ -404,7 +413,9 @@ ros2 launch kalman_bringup navigation.launch.py use_sim_time:=false robot_model:
 
 **Qué hace:** Lanza Nav2 con el mapa existente. El robot planifica rutas, evita obstáculos en tiempo real y se desplaza de forma autónoma hacia los objetivos que le indiques desde RViz.
 
-El comando es el mismo en Humble y en Jazzy: el launch elige solo los parámetros de Nav2 según `ROS_DISTRO` (`navigation_jazzy.yaml` en Jazzy, `navigation.yaml` en Humble).
+El comando es el mismo en Humble y en Jazzy: el launch elige solo los parámetros de Nav2 según `ROS_DISTRO` (`navigation_jazzy.yaml` en Jazzy, `navigation.yaml` en Humble). Al arrancar, la línea `Nav2  config :` te muestra cuál cargó.
+
+> **¿Ves `Failed to create global planner ... nav2_navfn_planner/NavfnPlanner ... does not exist`?** Estás en Jazzy con una copia vieja del repositorio, que solo traía los parámetros de Humble. Actualízala con los pasos de [¿Ya lo habías clonado antes? Actualízalo](#ya-lo-habías-clonado-antes-actualízalo) y vuelve a lanzar.
 
 **Qué usa:**
 - `/scan` (`sensor_msgs/LaserScan`) — detección de obstáculos en tiempo real durante la navegación
@@ -422,7 +433,7 @@ El comando es el mismo en Humble y en Jazzy: el launch elige solo los parámetro
   <tr><td align="center"><img src="img/nav2_pose3.png" alt="Partículas del AMCL convergiendo tras girar el robot" width="600"/><br/><em>Tras girar el robot, las partículas convergen y la localización mejora</em></td></tr>
 </table>
 
-2. Selecciona la herramienta **"2D Nav Goal"** y haz clic en el destino dentro del mapa. El robot calculará una ruta y se desplazará automáticamente hasta allí.
+2. Selecciona la herramienta **"Nav2 Goal"** y haz clic en el destino dentro del mapa. El robot calculará una ruta y se desplazará automáticamente hasta allí.
 
 <table align="center">
   <tr><td align="center"><img src="img/nav2_goal1.png" alt="Click en el destino con la herramienta 2D Nav Goal" width="600"/><br/><em>Seleccionar destino con la herramienta 2D Nav Goal</em></td></tr>
