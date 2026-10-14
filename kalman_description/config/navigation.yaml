@@ -218,7 +218,7 @@ local_costmap:
 #       cost_scaling_factor: 3.0
         cost_scaling_factor: 2.58
 #       inflation_radius: 0.02
-        inflation_radius: 0.08
+        inflation_radius: 0.10
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
         enabled: True
@@ -277,7 +277,7 @@ global_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
 #       cost_scaling_factor: 3.0
         cost_scaling_factor: 2.58
-        inflation_radius: 0.08
+        inflation_radius: 0.10
       always_send_full_costmap: True
 
 # The yaml_filename does not need to be specified since it going to be set by defaults in launch.
